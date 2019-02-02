@@ -1,0 +1,30 @@
+{
+  "name": "thunk-helpers",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./lib/index.js",
+  "scripts": {
+    "lint": "eslint src/index.js",
+    "build": "babel src -d lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shastel/thunk-helpers.git"
+  },
+  "keywords": [
+    "redux",
+    "redux-thunk"
+  ],
+  "author": "max@shas.tel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Shastel/thunk-helpers/issues"
+  },
+  "homepage": "https://github.com/Shastel/thunk-helpers#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "eslint": "^5.13.0"
+  }
+}
