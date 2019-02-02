@@ -18,7 +18,7 @@ function handleAction(dispatch, action) {
     }
 }
 
-export function withDispath (action) {
+export function withDispatch (action) {
     return function(dispatch, getState, ...rest) {
         const result = action(dispatch, getState, ...rest);
 
@@ -37,7 +37,7 @@ export function withDispath (action) {
 }
 
 export function withState (action) {
-    const actionWrapper = withDispath(action);
+    const actionWrapper = withDispatch(action);
 
     return useWith(actionWrapper, [ identity, f => f() ]);
 }
