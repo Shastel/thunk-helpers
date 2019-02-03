@@ -7,6 +7,29 @@ function useWith(func, mapfns) {
 }
 
 const identity = a => a;
+const call = f => f();
+const callWith = f => a => f(a);
+const arg = a => f => f(a);
+
+function __getSelectWrapper(action, selectors) {
+    const actionWrapper = createWrapper(action);
+
+    let handler = action;
+
+    if ('function' === typeof selectors) {
+        handler = useWith(actionWrapper, [ identity, callWith(selectors)]);
+    } else {
+        handler = useWith(actionWrapper, [ identity, (s) => selectors.map(arg(s))]);
+    }
+
+    return handler;
+}
+
+function __getStateHandler(action) {
+    const actionWrapper = createWrapper(action);
+
+    return useWith(actionWrapper, [ identity, call ]);
+}
 
 function handleAction(dispatch, action) {
     if (null == action) {
@@ -46,9 +69,7 @@ export function withDispatch (action) {
 }
 
 export function withState (action) {
-    const actionWrapper = createWrapper(action);
-
-    const handler = useWith(actionWrapper, [ identity, f => f() ]);
+    const handler = __getStateHandler(action);
 
     return function () {
         return handler;
@@ -56,17 +77,21 @@ export function withState (action) {
 }
 
 export function withSelectors (action, selectors) {
-    const actionWrapper = createWrapper(action);
-
-    let handler = identity;
-
-    if ('function' === typeof selectors) {
-        handler = useWith(actionWrapper, [ identity, (s) => selectors(s)]);
-    } else {
-        handler = useWith(actionWrapper, [ identity, (s) => selectors.map(selector => selector(s))]);
-    }
+    const handler = __getSelectWrapper(action, selectors);
 
     return function () {
         return handler;
     };
+}
+
+export function __withDispatch(action) {
+    return createWrapper(action);
+}
+
+export function __withState (action) {
+    return __getStateHandler(action);
+}
+
+export function __withSelectors (action, selectors) {
+    return __getSelectWrapper(action, selectors);
 }
