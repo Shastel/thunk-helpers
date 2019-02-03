@@ -18,8 +18,8 @@ function handleAction(dispatch, action) {
     }
 }
 
-export function withDispatch (action) {
-    return function(dispatch, getState, ...rest) {
+function createWrapper(action) {
+    return function __innerHandler(dispatch, getState, ...rest) {
         const result = action(dispatch, getState, ...rest);
 
         if (null == result) {
@@ -36,18 +36,37 @@ export function withDispatch (action) {
     };
 }
 
-export function withState (action) {
-    const actionWrapper = withDispatch(action);
 
-    return useWith(actionWrapper, [ identity, f => f() ]);
+export function withDispatch (action) {
+    const handler = createWrapper(action);
+
+    return function () {
+        return handler;
+    };
+}
+
+export function withState (action) {
+    const actionWrapper = createWrapper(action);
+
+    const handler = useWith(actionWrapper, [ identity, f => f() ]);
+
+    return function () {
+        return handler;
+    };
 }
 
 export function withSelectors (action, selectors) {
-    const actionWrapper = withState(action);
+    const actionWrapper = createWrapper(action);
+
+    let handler = identity;
 
     if ('function' === typeof selectors) {
-        return useWith(actionWrapper, [ identity, (s) => selectors(s)]);
+        handler = useWith(actionWrapper, [ identity, (s) => selectors(s)]);
+    } else {
+        handler = useWith(actionWrapper, [ identity, (s) => selectors.map(selector => selector(s))]);
     }
 
-    return useWith(actionWrapper, [ identity, (s) => selectors.map(selector => selector(s))]);
+    return function () {
+        return handler;
+    };
 }
