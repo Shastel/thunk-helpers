@@ -11,26 +11,6 @@ const call = f => f();
 const callWith = f => a => f(a);
 const arg = a => f => f(a);
 
-function __getSelectWrapper(action, selectors) {
-    const actionWrapper = createWrapper(action);
-
-    let handler = action;
-
-    if ('function' === typeof selectors) {
-        handler = useWith(actionWrapper, [ identity, callWith(selectors)]);
-    } else {
-        handler = useWith(actionWrapper, [ identity, (s) => selectors.map(arg(s))]);
-    }
-
-    return handler;
-}
-
-function __getStateHandler(action) {
-    const actionWrapper = createWrapper(action);
-
-    return useWith(actionWrapper, [ identity, call ]);
-}
-
 function handleAction(dispatch, action) {
     if (null == action) {
         return;
@@ -41,7 +21,7 @@ function handleAction(dispatch, action) {
     }
 }
 
-function createWrapper(action) {
+export function withDispatch(action) {
     return function __innerHandler(dispatch, getState, ...rest) {
         const result = action(dispatch, getState, ...rest);
 
@@ -59,39 +39,46 @@ function createWrapper(action) {
     };
 }
 
-
-export function withDispatch (action) {
-    const handler = createWrapper(action);
-
-    return function () {
-        return handler;
-    };
-}
-
 export function withState (action) {
-    const handler = __getStateHandler(action);
+    const actionWrapper = withDispatch(action);
 
-    return function () {
-        return handler;
-    };
+    return useWith(actionWrapper, [ identity, call ]);
 }
 
 export function withSelectors (action, selectors) {
-    const handler = __getSelectWrapper(action, selectors);
+    const actionWrapper = withDispatch(action);
+
+    let handler = action;
+
+    if ('function' === typeof selectors) {
+        handler = useWith(actionWrapper, [ identity, callWith(selectors)]);
+    } else {
+        handler = useWith(actionWrapper, [ identity, (s) => selectors.map(arg(s))]);
+    }
+
+    return handler;
+}
+
+export function withDispatchAction (action) {
+    const handler = withDispatch(action);
 
     return function () {
         return handler;
     };
 }
 
-export function __withDispatch(action) {
-    return createWrapper(action);
+export function withStateAction (action) {
+    const handler = withState(action);
+
+    return function () {
+        return handler;
+    };
 }
 
-export function __withState (action) {
-    return __getStateHandler(action);
-}
+export function withSelectorsAction (action, selectors) {
+    const handler = withSelectors(action, selectors);
 
-export function __withSelectors (action, selectors) {
-    return __getSelectWrapper(action, selectors);
+    return function () {
+        return handler;
+    };
 }
