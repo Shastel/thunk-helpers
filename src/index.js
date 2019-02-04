@@ -19,6 +19,10 @@ function handleAction(dispatch, action) {
     if (Array.isArray(action)) {
         action.map((action) => handleAction(dispatch, action));
     }
+
+    if ('object' === typeof action) {
+        return dispatch(action);
+    }
 }
 
 export function withDispatch(action) {
