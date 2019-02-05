@@ -46,7 +46,7 @@ npm install thunk-helpers
   // withSelectors works pretty same as withState,
   // but accepts array of selector functions or 1 function
   // and replace getState with result of those functions
-  () => withSelectorsAction(async (dispatch, [ smth ])) => {
+  () => withSelectors(async (dispatch, [ smth ])) => {
     return { type: 'EXAMPLE', payload: smth }
   }, [ someSelectorFunction ])
 
